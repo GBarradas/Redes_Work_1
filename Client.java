@@ -22,6 +22,11 @@ class Client {
         SendMenssages sm = new SendMenssages(server,br,outServer);
         sm.sendMsg();
 
+        System.out.println("Goodbye!!");
+        br.close();
+        outServer.close();
+        inputServer.close();
+
     }
     public static void setNickname() throws IOException
     {
@@ -50,6 +55,8 @@ class SendMenssages{
         String message;
         while((message = br.readLine())!= null){
             outServer.println(message);
+            if(message.equals("#Disconect"))
+                return;
         }
 
     }
@@ -64,15 +71,10 @@ class ReciveMessages implements Runnable{
     }
     public void run()
     {
-        try{
-
-            String message;
-            while(inputServer.hasNextLine()){
-                message = inputServer.nextLine();
-                System.out.println(message);
-            }
-        }catch( Exception IOException){
-
+        String message;
+        while(inputServer.hasNextLine()){
+            message = inputServer.nextLine();
+            System.out.println(message);
         }
     }
 }
