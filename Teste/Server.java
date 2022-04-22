@@ -5,7 +5,7 @@ import java.util.*;
 class Server
 {
     private int port;
-    private List<UserClient> clients;
+    private  List<UserClient> clients;
     private ServerSocket server;
     public Server(int port){
         this.port = port;
@@ -23,32 +23,15 @@ class Server
     }
     public void aceptClients() throws IOException
     {
-        BufferedReader br;
-        PrintStream outClient;
         while(true){
             Socket client = server.accept();
-            br = new BufferedReader(new InputStreamReader   (client.getInputStream()));
-            outClient =new PrintStream( client.getOutputStream());
-            String nickname = br.readLine();
-            while(!acceptNickname(nickname)){
-                //System.out.println(nickname+ " in use");
-                outClient.println("NickName already in use!!");
-                nickname = br.readLine();
-            }
-            outClient.println("Connected!!");
-            UserClient uc = new UserClient(client,nickname,outClient,br);
-            clients.add(uc);
-            System.out.println(uc+ " Connected");
-            new Thread(new ProcessUser(this , uc)).start();
+            UserClient uc = new UserClient(client,this,clients);
+            addClient(uc);
+            new Thread(uc).start();
+            
         }
     }
-    public boolean acceptNickname(String nickname){
-        for(UserClient a : clients){
-            if(a.getNickname().equals(nickname))
-                return false;
-        }
-        return true;
-    }
+    
     public void serverToAll(String msg){
         for(UserClient a : clients){
             a.getOutput().println("System:"+msg);
@@ -82,8 +65,14 @@ class Server
     public void removeClient(UserClient toRemove){
         clients.remove(toRemove);
     }
+    public void addClient (UserClient newClinet){
+        clients.add(newClinet);
+    }
+    public List<UserClient> getUsers(){
+        return clients;
+    }
 }
-class ProcessUser implements Runnable{
+class ProcessUser{
     private Server server;
     private UserClient client;
 
@@ -91,7 +80,7 @@ class ProcessUser implements Runnable{
         this.server = server;
         this.client = client;
     }
-    public void run(){
+    public void HandleRcivedMessages(){
         try{
 
 
@@ -122,18 +111,43 @@ class ProcessUser implements Runnable{
     }
 }
 
-class UserClient{
+class UserClient implements Runnable{
+    private Server server;
+    private  List<UserClient> clients;
     private String nickname;
     private Socket client;
     private PrintStream outClient;
     private BufferedReader inputClient;
 
-    public UserClient(Socket client, String nickname, PrintStream pw, BufferedReader br){
+    public UserClient(Socket client, Server server,List<UserClient> clients) throws IOException
+    {
+        this.clients=clients;
         this.client = client;
-        this.nickname = nickname;
-        this.outClient = pw;
-        this.inputClient = br;
+        this.server = server;
+        this.outClient = new PrintStream( client.getOutputStream());
+        this.inputClient = new BufferedReader(new InputStreamReader(client.getInputStream()));
+        //run();
+    }
+    public void run() 
+    {
+        try{
 
+            String name = inputClient.readLine();
+            outClient.println("Connected!!");
+            this.nickname = name;
+            server.addClient(this);
+            updateList();
+            outClient.println("Connected!!");
+            System.out.println(this+" Connected!!");
+            ProcessUser pu = new ProcessUser(server,this);
+            pu.HandleRcivedMessages();
+        }   
+        catch(Exception IOException){
+
+        }
+    }
+    public void updateList(){
+        this.clients=server.getUsers();
     }
 
     public String getNickname(){
