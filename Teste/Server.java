@@ -113,7 +113,6 @@ class ProcessUser{
 
 class UserClient implements Runnable{
     private Server server;
-    private  List<UserClient> clients;
     private String nickname;
     private Socket client;
     private PrintStream outClient;
@@ -121,7 +120,6 @@ class UserClient implements Runnable{
 
     public UserClient(Socket client, Server server,List<UserClient> clients) throws IOException
     {
-        this.clients=clients;
         this.client = client;
         this.server = server;
         this.outClient = new PrintStream( client.getOutputStream());
@@ -135,9 +133,6 @@ class UserClient implements Runnable{
             String name = inputClient.readLine();
             outClient.println("Connected!!");
             this.nickname = name;
-            server.addClient(this);
-            updateList();
-            outClient.println("Connected!!");
             System.out.println(this+" Connected!!");
             ProcessUser pu = new ProcessUser(server,this);
             pu.HandleRcivedMessages();
@@ -145,9 +140,6 @@ class UserClient implements Runnable{
         catch(Exception IOException){
 
         }
-    }
-    public void updateList(){
-        this.clients=server.getUsers();
     }
 
     public String getNickname(){

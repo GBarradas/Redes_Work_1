@@ -14,10 +14,8 @@ class Client {
         Socket server = new Socket(serverHost,port);
         outServer = new PrintStream(server.getOutputStream());
         inputServer = new Scanner(server.getInputStream());
-        while(!nickname){
             System.out.println("Enter a nickname:");
             setNickname();
-        }
         new Thread(new ReciveMessages(server,inputServer)).start();
         SendMenssages sm = new SendMenssages(server,br,outServer);
         sm.sendMsg();
