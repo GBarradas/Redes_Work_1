@@ -4,7 +4,7 @@ import java.util.*;
 
 class Client {
     private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    private final static String serverHost = "localhost";
+    private final static String serverHost = "192.168.1.68";
     private final static int port = 12345;
     private static boolean nickname = false;
     private static PrintStream outServer;

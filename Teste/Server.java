@@ -83,7 +83,6 @@ class ProcessUser{
     public void HandleRcivedMessages(){
         try{
 
-
             String message;
             while((message = client.getInput().readLine())!= null){
                 System.out.println(client+" "+message);
@@ -103,6 +102,8 @@ class ProcessUser{
                     if(command.equals("Disconect")){
                         server.removeClient(client);
                         server.serverToAll(client+ " Disconect");
+
+                        break;
                     }
                 }
             }
