@@ -24,6 +24,7 @@ class Client {
         br.close();
         outServer.close();
         inputServer.close();
+        server.close();
 
     }
     public static void setNickname() throws IOException

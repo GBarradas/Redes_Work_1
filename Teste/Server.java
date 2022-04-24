@@ -102,7 +102,7 @@ class ProcessUser{
                     if(command.equals("Disconect")){
                         server.removeClient(client);
                         server.serverToAll(client+ " Disconect");
-
+                        client.Disconect();
                         break;
                     }
                 }
@@ -141,6 +141,10 @@ class UserClient implements Runnable{
         catch(Exception IOException){
 
         }
+    }
+    public void Disconect() throws IOException
+    {
+        client.close();
     }
 
     public String getNickname(){
