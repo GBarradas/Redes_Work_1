@@ -27,7 +27,7 @@ As mensagens passam a ter um prefixo:
 
 ## Entrega
 
-O trabalho, realizado em grupos de 2 ou 1 elementos, deve ser entregue até às 23:59h do dia 20/04/2022. A entrega deve ser realizada através do moodle, pelo aluno com o menor dos números de aluno do grupo, consistindo num ficheiro comprimido (.zip ou .tar.gz) contendo uma directoria src/ com o código-fonte do trabalho e um ficheiro .pdf com o relatório de implementação.
+O trabalho, realizado em grupos de 2 ou 1 elementos, deve ser entregue até às 23:59h do dia 26/04/2022. A entrega deve ser realizada através do moodle, pelo aluno com o menor dos números de aluno do grupo, consistindo num ficheiro comprimido (.zip ou .tar.gz) contendo uma directoria src/ com o código-fonte do trabalho e um ficheiro .pdf com o relatório de implementação.
 
 
 ---
