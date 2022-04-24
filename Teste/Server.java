@@ -80,7 +80,7 @@ class ProcessUser{
         this.server = server;
         this.client = client;
     }
-    public void HandleRcivedMessages(){
+    public void HandleRecivedMensages(){
         try{
 
             String message;
