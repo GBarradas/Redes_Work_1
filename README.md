@@ -1,6 +1,4 @@
 # Redes-Work_1  
-[Overleaf](https://www.overleaf.com/4244928485qpfvhpkrmtrs)   
-
 ---  
 ## Problema
 
@@ -31,11 +29,3 @@ O trabalho, realizado em grupos de 2 ou 1 elementos, deve ser entregue até às 
 
 
 ---
-# ToDo
-- [x] Escolher liguagem a implementar.  
-- [x] Escolher E.D. para guardar clientes.  
-- [x] Implementar a coneção entre servidor e o cliente.  
-- [x] Implentar um mentodo de analise de mensanges.
-- [x] Implementar um metodo de resposta individual.
-- [x] Implementar um metodo de resposta para todos.
-
