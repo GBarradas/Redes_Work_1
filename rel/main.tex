@@ -1,0 +1,122 @@
+\documentclass{article}
+\usepackage[portuguese]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{makeidx}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{enumerate}
+\usepackage[a4paper, total={16cm, 24cm}]{geometry}
+%---------------------------------------------------------------%
+\newcommand{\UC}{Redes de Computadores}%Unidade Curricular
+\newcommand{\work}{1º Trabalho \\ Sistema de comunicação}%nome  trabalho
+\newcommand{\docente}{Pedro Patinho \\
+\hspace{2.15cm} Pedro Salgueiro}%nome professor
+%---------------------------------------------------------------%
+\fancypagestyle{indice}{
+\fancyhf{}
+\lhead{\includegraphics[scale=0.3]{imagens/logo.png} }
+\rhead{U.C. \UC\\ 
+\textbf{\work}}
+}
+%---------------------------------------------------------------%
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\includegraphics[scale=0.3]{imagens/logo.png} }
+\rhead{U.C. \UC\\
+\textbf{\work}}
+\rfoot{\thepage}
+\setlength{\headheight}{1.5cm}
+%---------------------------------------------------------------%
+\title{ \includegraphics[scale=0.3]{imagens/uevora.png}\\
+U.C. \UC\\
+\textbf{\work}}
+%---------------------------------------------------------------%
+\author{
+\textbf{Docente: }\docente\\
+\textbf{Discentes: } André Baião 48092\\
+\hspace{3.3cm} Gonçalo Barradas 48402
+}
+\date{Abril 2022}
+%---------------------------------------------------------------%
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+\newpage
+%---------------------------------------------------------------%
+\setcounter{page}{1}
+\section{Introdução}
+\paragraph{}
+
+A forma de conectar duas interfaces numa rede é por meio de um \emph{socket}. Ambas as interfaces se conectam a \emph{sockets} distintos, por meio de um endereço, numa determinada porta. De seguida ambos os \emph{sockets} conectam-se entre si.
+
+Inicialmente é criado um \emph{socket} por parte do servidor, este conecta-se ao \emph{socket} pela porta desejada e aguarda a receção de um pedido de conexão.
+
+O cliente conecta-se a um \emph{socket} por meio do endereço IP e a porta, pedindo uma conexão ao servidor. Assim que um cliente se conecta, o servidor cria uma nova \emph{thread} para poder lidar com esse cliente e assim sucessivamente enquanto houver novos clientes a conectarem-se.
+
+Uma \emph{thread} é uma forma de dividir um processo em duas ou mais tarefas que podem ser executadas simultaneamente. Para este trabalho as \emph{threads} permitem ao servidor lidar com os vários clientes simultaneamente. 
+
+Foi-nos proposto elaborar um programa que implementasse um sistema de comunicação de rede para grupos de trabalho, no qual o servidor deve correr o serviço de chat na porta “1234”. Este sistema tem ainda as seguintes condições:  enviar a mensagem para todos os clientes do canal quando o prefixo da mesma é o sinal de soma (\textbf{+}) e enviar uma mensagem em privado quando o prefixo é o sinal de subtração (\textbf{-}) seguido do nickname do cliente para qual deve ser enviada a mensagem. Quando um cliente sai do sistema todos os clientes ainda conectados devem receber um aviso com o nickname do cliente e a mensagem “Disconnected”. Todos os clientes devem ter um nickname.
+
+\section{Servidor}
+\paragraph{}
+O servidor é o responsável por abrir o \emph{socket} na porta desejada e por aceitar novos clientes. Ao ser aceite um cliente, o servidor cria uma \emph{thread} para esse cliente. 
+Após estabelecida a conexão, o servidor guarda o nickname do cliente e analisa as mensagens enviadas pelo mesmo, encaminhando-as para o seu destino correto.
+Para implementar o servidor usamos três classes:
+
+\begin{itemize}
+    \item   \verb|Server|\\
+     Cria a o \emph{socket} e aceita ligações. Também é responsável por enviar mensagens para os clientes.
+Guarda o \emph{socket} do servidor, a informação da porta à qual está conectado e uma lista de utilizadores conectados ao servidor:
+    \begin{itemize}
+        \item \verb|InicializeServer|: esta função cria o \emph{socket} do servidor e chama a \verb|aceptClients|;
+        \item \verb|aceptClintes|: esta função aceita as conexões efetuadas pelos clientes e cria uma \emph{thread} para cada cliente (\verb|UserClient|);
+        \item \verb|serverToAll|: recebe como argumento uma mensagem e envia para todos os clientes a mensagem do servidor;
+        \item \verb|serverToClient|: recebe como argumento uma mensagem e um \verb|UserClient| (destino) e envia a mensagem recebida para esse cliente;
+        \item \verb|messageForAll|: esta função recebe como argumento uma mensagem e o \verb|UserClient| que pretende enviar a mensagem para todos os clientes, e envia a mensagem para todos os clientes informando quem foi o emissor;
+        \item \verb|messageToClient|: esta função recebe como argumento uma mensagem, o \verb|UserClient|e emissor e uma String com o nickname do receptor.  Após identificar o \verb|UserClient| receptor, adiciona o nickname do emissor e envia a mensagem para esse cliente, caso não o encontre envia um aviso para o cliente emissor a dizer que o utilizador não foi encontrado;
+        \item \verb|getClient|: recebe como argumento um nickname e devolve o \verb|UserClient| com o mesmo nickname;
+        \item \verb|removeClient|: recebe como argumento um \verb|UserClient| e retira da lista de clientes conectados esse cliente;
+        \item \verb|addClient|: recebe como argumento um \verb|UserClient| e adiciona-o á lista de clientes conectados.
+    \end{itemize}
+    \newpage
+    \item \verb|ProcessUser|: \\
+    Responsável por ler e analisar as mensagens que o cliente envia para o servidor.
+Guarda informações do servidor e informações do cliente com que está a trabalhar. Esta função é executada em \emph{threads} para que os clientes possam enviar mensagens ao mesmo tempo.
+
+Possui uma função \verb|HandleRecivedMensages| que é responsável por ler as mensagens enviadas por um cliente e analisar as mesmas.
+
+Caso a mensagem comece por “\textbf{+}” significa que a mensagem é para todos e então é usado o método \verb|messageForAll|.
+
+Caso a mensagem comece com “\textbf{-}” significa que a mensagem é privada e nesse caso retiramos da mensagem o nome do destinatário e enviamos a mensagem utilizado o método \verb|messageToClient|.
+
+Caso a mensagem seja “\textbf{#Disconect}” significa que um cliente se desconectou e nesse caso efetua-se a remoção do cliente da lista de cliente conectados utilizando a \verb|removeClient| e fechamos o \emph{socket} do cliente, informando os restantes clientes que este cliente se desconectou usando o método \verb|serverToAll|.
+
+    \item \verb|UserClient|:
+    Esta função cria os \emph{buffers} de leitura e de escrita do cliente, define o nickname do mesmo e cria um \verb|ProcessUser| para processar as mensagens do cliente.
+Esta Class guarda informações sobre o server, o cliente, o nickname e guarda os \emph{buffers} de leitura e escrita do cliente.
+\begin{itemize}
+    \item \verb|Disconect|: quando é executada o \emph{socket} do cliente em questão é fechado; 
+    \item \verb|getNickname|: devolve o nickname do cliente;
+    \item \verb|getInput|: devolve o \emph{buffer} de leitura do cliente;
+    \item \verb|getOutput|: devolve o \emph{buffer} de escrita do cliente;
+\end{itemize}
+\end{itemize}
+\section{Cliente}
+\paragraph{}
+O cliente é responsável por se conectar ao servidor e por receber e enviar mensagens.
+ O cliente através de um \emph{socket}, usando um endereço e uma porta, estabelece a conexão com o servidor. Após efetuada a conexão o cliente cria os \emph{buffers} de escrita e leitura, e o cliente envia ao servidor uma mensagem com o seu nickname.
+ 
+Após definido o nickname, o cliente está pronto para receber e enviar mensagens. Para podermos enviar e recebermos mensagens ao mesmo tempo vamos criar uma \emph{thread} para receber mensagens e assim, enquanto a \emph{thread} vai recebendo mensagens, o cliente poderá enviar mensagens á vontade.
+
+Caso o cliente envie a mensagem para se desconectar, todos os \emph{buffers} e \emph{socket} vão ser fechados.
+
+\section{Conclusão}
+\paragraph{}
+Este tipo de tecnologias pode ser bastante útil dentro de uma empresa ou organização pois possibilita a comunicação entre os vários elementos tanto de forma privada como em grupo permitindo uma organização de trabalho eficiente e de forma mais segura.
+
+O programa desenvolvido foi testado numa rede interna, e funcionou como esperado, tendo sido possível o envio de mensagens entre três utilizadores com sucesso, desta forma é possível concluir que o desenvolvimento de um chat foi cumprido com sucesso.
+\nocite{gfg}
+\nocite{aulas}
+\bibliography{main.bib}
+\bibliographystyle{apalike}
+\end{document}

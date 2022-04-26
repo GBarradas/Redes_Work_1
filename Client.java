@@ -4,45 +4,40 @@ import java.util.*;
 
 class Client {
     private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    private final static String serverHost = "localhost";
-    private final static int port = 12345;
-    private static boolean nickname = false;
-    private static PrintStream outServer;
-    private static Scanner inputServer;
+    private final static String serverHost = "localhost";       //Ip adress
+    private final static int port = 1234;       //Porta
+    private static PrintStream outServer;       // buffer de escrita
+    private static Scanner inputServer;         // buffer de leitura
     public static void main(String[] args) throws UnknownHostException, IOException
     {
-        Socket server = new Socket(serverHost,port);
-        outServer = new PrintStream(server.getOutputStream());
-        inputServer = new Scanner(server.getInputStream());
-        while(!nickname){
-            System.out.println("Enter a nickname:");
-            setNickname();
-        }
-        new Thread(new ReciveMessages(server,inputServer)).start();
+        Socket server = new Socket(serverHost,port);        //criar o socket
+        outServer = new PrintStream(server.getOutputStream());  // inicializar o buffer de escrita
+        inputServer = new Scanner(server.getInputStream());     // inicializar o buffer de leitura
+        setNickname();                                          // defenir o nickname
+        new Thread(new ReciveMessages(server,inputServer)).start(); //cria uma thread para receber mensagens
         SendMenssages sm = new SendMenssages(server,br,outServer);
         sm.sendMsg();
-
-        System.out.println("Goodbye!!");
-        br.close();
-        outServer.close();
+                                            //apos o fim da conexão
+        System.out.println("Goodbye!!");    
+        br.close();                         //fecha todos os buffers
+        outServer.close();              
         inputServer.close();
-
+        server.close();                     // e fecha o socket
+        
     }
     public static void setNickname() throws IOException
-    {
+    {                                          // le o nickname da consola e passa-o para o server
+        System.out.println("Enter a nickname:");
         String name = br.readLine();
         outServer.println(name);
         String result = inputServer.nextLine();
         System.out.println(result);
-        if(result.equals("Connected!!")){
-            nickname = true;
-        }
 
 
     }
 }
-class SendMenssages{
-    private  Socket server;
+class SendMenssages{                // responsavel por enviar mensangens
+    private  Socket server;         
     private  BufferedReader br;
     private  PrintStream outServer;
     public SendMenssages(Socket server, BufferedReader br, PrintStream ps){
@@ -53,9 +48,9 @@ class SendMenssages{
     public void sendMsg() throws IOException
     {
         String message;
-        while((message = br.readLine())!= null){
+        while((message = br.readLine())!= null){    // le mensagens enquanto o cliente estiver conectado
             outServer.println(message);
-            if(message.equals("#Disconect"))
+            if(message.equals("#Disconect"))       // o cliente pretende desconectar-se
                 return;
         }
 
@@ -69,8 +64,8 @@ class ReciveMessages implements Runnable{
         this.server = server;
         this.inputServer = is;
     }
-    public void run()
-    {
+    public void run()       // enquanto o cliente estiver conectado                       
+    {                       // le mensagens enviadas pelo servidor e outros clientes
         String message;
         while(inputServer.hasNextLine()){
             message = inputServer.nextLine();
