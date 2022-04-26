@@ -34,7 +34,7 @@ class Server
     
     public void serverToAll(String msg){        // servidor envia mensagem para todos os clientes
         for(UserClient a : clients){            // Ex: aviso de um cliente que se ddesconectou
-            a.getOutput().println("System:"+msg);
+            a.getOutput().println("System: "+msg);
         }
     }
     public void serverToClient(String msg, UserClient clientDestin){    // comunicaçao entre o servidor e um cliente especifico
