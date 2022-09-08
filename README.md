@@ -1,4 +1,4 @@
-# Redes-Work_1  
+ 
 ## Problema
 
 Pretende-se desenvolver um sistema de comunicação em rede para grupos de trabalho. O sistema deve permitir comunicação de 1 para 1 ou de 1 para todos, seguindo a seguinte especificação:  
